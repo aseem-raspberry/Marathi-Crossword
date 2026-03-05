@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="mr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="मराठी शब्दकोडे - ज्येष्ठ नागरिकांसाठी सोपे आणि मजेदार शब्दकोडे खेळ">
+    <title>मराठी शब्दकोडे</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Marathi:ital@0;1&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <!-- ===== HEADER BAR ===== -->
+    <header id="app-header">
+        <div class="header-left">
+            <h1 id="app-title">मराठी शब्दकोडे</h1>
+        </div>
+        <div class="header-right">
+            <button id="btn-archive" class="header-btn" onclick="app.showArchive()">
+                📚 संग्रह
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT (Vertical Split) ===== -->
+    <main id="app-main">
+        <!-- Top: Crossword Grid (Fixed) -->
+        <section id="grid-section">
+            <div id="grid-toolbar">
+                <div id="puzzle-info">
+                    <span id="puzzle-id-display"></span>
+                    <span id="puzzle-difficulty-display"></span>
+                </div>
+            </div>
+            <div id="crossword-grid-container">
+                <div id="crossword-grid"></div>
+            </div>
+        </section>
+
+        <!-- Bottom: Hints + Controls (Scrollable) -->
+        <section id="hints-section">
+            <!-- Help Tools -->
+            <div id="help-tools">
+                <button id="btn-reveal-letter" class="help-btn" onclick="app.revealLetter()">
+                    🔤 अक्षर पहा
+                </button>
+                <button id="btn-reveal-word" class="help-btn" onclick="app.revealWord()">
+                    📝 शब्द पहा
+                </button>
+                <button id="btn-check-errors" class="help-btn" onclick="app.checkErrors()">
+                    ✅ चूक तपासा
+                </button>
+            </div>
+
+            <!-- Hints Area -->
+            <div id="hints-container">
+                <div id="hints-across">
+                    <h2 class="hints-heading">➡️ आडवे</h2>
+                    <div id="across-list" class="hints-list"></div>
+                </div>
+                <div id="hints-down">
+                    <h2 class="hints-heading">⬇️ उभे</h2>
+                    <div id="down-list" class="hints-list"></div>
+                </div>
+            </div>
+
+            <!-- New Puzzle Button -->
+            <div id="bottom-actions">
+                <button id="btn-new-puzzle" class="action-btn primary-btn" onclick="app.showDifficultySelector()">
+                    🆕 नवीन शब्दकोडे
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== DIFFICULTY SELECTOR MODAL ===== -->
+    <div id="difficulty-modal" class="modal hidden">
+        <div class="modal-backdrop" onclick="app.closeModals()"></div>
+        <div class="modal-content">
+            <h2 class="modal-title">अवघडपणा निवडा</h2>
+            <div class="difficulty-options">
+                <button class="difficulty-btn easy-btn" onclick="app.newPuzzle('easy')">
+                    <span class="diff-label">सोपे</span>
+                    <span class="diff-size">५ × ५</span>
+                </button>
+                <button class="difficulty-btn medium-btn" onclick="app.newPuzzle('medium')">
+                    <span class="diff-label">मध्यम</span>
+                    <span class="diff-size">८ × ८</span>
+                </button>
+                <button class="difficulty-btn hard-btn" onclick="app.newPuzzle('hard')">
+                    <span class="diff-label">कठीण</span>
+                    <span class="diff-size">१२ × १२</span>
+                </button>
+            </div>
+            <button class="modal-close-btn" onclick="app.closeModals()">बंद करा</button>
+        </div>
+    </div>
+
+    <!-- ===== ARCHIVE MODAL ===== -->
+    <div id="archive-modal" class="modal hidden">
+        <div class="modal-backdrop" onclick="app.closeModals()"></div>
+        <div class="modal-content archive-content">
+            <h2 class="modal-title">📚 संग्रह</h2>
+            <div id="archive-list"></div>
+            <button class="modal-close-btn" onclick="app.closeModals()">बंद करा</button>
+        </div>
+    </div>
+
+    <!-- ===== CELEBRATION OVERLAY ===== -->
+    <div id="celebration-overlay" class="hidden">
+        <div class="celebration-content">
+            <div class="celebration-icon">🎉</div>
+            <h2 class="celebration-text">अभिनंदन!</h2>
+            <p class="celebration-subtext">तुम्ही शब्दकोडे पूर्ण केले आहे!</p>
+            <button class="action-btn primary-btn celebration-btn" onclick="app.closeCelebration()">
+                ठीक आहे
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== LOADING OVERLAY ===== -->
+    <div id="loading-overlay" class="hidden">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">शब्दकोडे तयार होत आहे...</p>
+        </div>
+    </div>
+
+    <!-- ===== SCROLL NAVIGATION ===== -->
+    <div id="scroll-nav">
+        <button class="scroll-nav-btn" id="scroll-up-btn" onclick="app.scrollToGrid()" title="वर जा">▲</button>
+        <button class="scroll-nav-btn" id="scroll-down-btn" onclick="app.scrollToHints()" title="खाली जा">▼</button>
+    </div>
+
+    <script src="/static/js/grid.js"></script>
+    <script src="/static/js/hints.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>

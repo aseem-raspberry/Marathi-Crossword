@@ -1,0 +1,946 @@
+/* ============================================
+   MARATHI SHABDAKODE — DESIGN SYSTEM
+   Senior-friendly, high-contrast, Devanagari
+   ============================================ */
+
+/* === CSS CUSTOM PROPERTIES === */
+:root {
+    /* Colors — High Contrast Theme */
+    --bg-primary: #FFFDF7;
+    --bg-secondary: #FFF8F0;
+    --bg-grid: #FFFFFF;
+    --text-primary: #1A1A1A;
+    --text-secondary: #3D3D3D;
+    --text-muted: #666666;
+
+    --accent-blue: #1A5276;
+    --accent-blue-light: #D4E6F1;
+    --accent-orange: #E67E22;
+    --accent-orange-light: #FDEBD0;
+
+    --cell-highlight: #FFD54F;
+    --word-highlight: #BBDEFB;
+    --cell-correct: #C8E6C9;
+    --cell-error: #FFCDD2;
+    --cell-revealed: #E1BEE7;
+    --cell-border: #2C3E50;
+    --block-color: #2C3E50;
+
+    --btn-primary-bg: #1A5276;
+    --btn-primary-text: #FFFFFF;
+    --btn-help-bg: #F5F5F5;
+    --btn-help-border: #BDBDBD;
+    --btn-help-text: #1A1A1A;
+
+    --hint-active-border: #E67E22;
+    --hint-active-bg: #FFF3E0;
+
+    --border-radius: 12px;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+
+    /* Typography */
+    --font-devanagari: 'Noto Sans Devanagari', 'Tiro Devanagari Marathi', sans-serif;
+    --font-size-base: 20px;
+    --font-size-lg: 24px;
+    --font-size-xl: 28px;
+    --font-size-xxl: 36px;
+    --font-size-cell: clamp(18px, 4vw, 28px);
+    --font-size-cell-number: clamp(9px, 2vw, 12px);
+    --font-size-hint: 20px;
+    --font-size-btn: 20px;
+
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    /* Grid cell sizing — dynamically set by JS based on available space */
+    --cell-size: 40px;
+    /* fallback; overridden by JS */
+    --cell-font: clamp(12px, var(--cell-size) * 0.45, 28px);
+    --cell-num-font: clamp(8px, var(--cell-size) * 0.22, 13px);
+}
+
+/* === RESET & BASE === */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: var(--font-size-base);
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    height: 100dvh;
+    overflow: hidden;
+    /* Lock the entire page — nothing scrolls outside designated areas */
+}
+
+body {
+    font-family: var(--font-devanagari);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100dvh;
+    max-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* === HEADER === */
+#app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--accent-blue);
+    color: white;
+    box-shadow: var(--shadow-md);
+    z-index: 100;
+    flex-shrink: 0;
+    min-height: 56px;
+}
+
+#app-title {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+.header-btn {
+    font-family: var(--font-devanagari);
+    font-size: var(--font-size-btn);
+    font-weight: 700;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.header-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.header-btn:active {
+    transform: scale(0.97);
+}
+
+/* === MAIN LAYOUT — Viewport-locked vertical split === */
+#app-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    /* Always fills exactly the remaining viewport height */
+}
+
+/* Top: Grid Section — shrinks to fit exactly the grid content, never clips it */
+#grid-section {
+    flex: 0 0 auto;
+    /* Does not grow or shrink beyond the grid content */
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    border-bottom: 3px solid var(--accent-blue);
+    overflow: visible;
+    /* Let it size naturally to its content */
+}
+
+#grid-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xs) var(--spacing-md);
+    gap: var(--spacing-md);
+    flex-shrink: 0;
+}
+
+#puzzle-info {
+    display: flex;
+    gap: var(--spacing-md);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+#crossword-grid-container {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    overflow: visible;
+}
+
+/* === CROSSWORD GRID === */
+#crossword-grid {
+    display: inline-grid;
+    gap: 0;
+    border: 3px solid var(--cell-border);
+    background: var(--cell-border);
+    border-radius: 4px;
+    box-shadow: var(--shadow-md);
+    /* width/height driven by --cell-size, which JS sets dynamically */
+}
+
+.grid-cell {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    background: var(--bg-grid);
+    border: 1px solid #BDC3C7;
+    transition: background 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.grid-cell .cell-number {
+    position: absolute;
+    top: 1px;
+    left: 3px;
+    font-size: var(--cell-num-font);
+    font-weight: 700;
+    color: var(--text-secondary);
+    line-height: 1;
+    pointer-events: none;
+}
+
+.grid-cell .cell-input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    text-align: center;
+    font-family: var(--font-devanagari);
+    font-size: var(--cell-font);
+    font-weight: 700;
+    color: var(--text-primary);
+    padding: 0;
+    caret-color: var(--accent-orange);
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+.grid-cell.block {
+    background: var(--block-color);
+    cursor: default;
+}
+
+.grid-cell .cell-input::selection {
+    background: var(--cell-highlight);
+}
+
+/* Cell States */
+.grid-cell.active {
+    background: var(--cell-highlight) !important;
+    border-color: var(--accent-orange);
+    box-shadow: inset 0 0 0 2px var(--accent-orange);
+    z-index: 2;
+}
+
+.grid-cell.word-highlight {
+    background: var(--word-highlight) !important;
+}
+
+.grid-cell.error {
+    background: var(--cell-error) !important;
+    animation: shake 0.4s ease;
+}
+
+.grid-cell.correct {
+    background: var(--cell-correct) !important;
+}
+
+.grid-cell.revealed {
+    background: var(--cell-revealed) !important;
+}
+
+.grid-cell.revealed .cell-input {
+    color: #6A1B9A;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-3px);
+    }
+
+    75% {
+        transform: translateX(3px);
+    }
+}
+
+/* === BOTTOM: Hints Section (Fixed, does NOT scroll itself) === */
+#hints-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* CRITICAL: prevents the section from growing and pushing grid up */
+    background: var(--bg-primary);
+    position: relative;
+    min-height: 0;
+    /* Needed for flex children to be constrained */
+}
+
+/* Help Tool Buttons */
+#help-tools {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    flex-shrink: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.help-btn {
+    font-family: var(--font-devanagari);
+    font-size: 18px;
+    font-weight: 700;
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 52px;
+    background: var(--btn-help-bg);
+    color: var(--btn-help-text);
+    border: 2px solid var(--btn-help-border);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    flex: 1;
+    min-width: 0;
+}
+
+.help-btn:hover {
+    background: #EEEEEE;
+    box-shadow: var(--shadow-sm);
+}
+
+.help-btn:active {
+    transform: scale(0.97);
+    background: #E0E0E0;
+}
+
+/* Hints Area — Two Column Split, each column scrolls independently */
+#hints-container {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding: 0;
+    min-height: 0;
+    /* Force grid to respect parent height constraint */
+    overflow: hidden;
+}
+
+#hints-across,
+#hints-down {
+    padding: 0 var(--spacing-sm);
+    border-right: 2px solid var(--accent-blue-light);
+    overflow-y: auto;
+    /* Each column scrolls independently */
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Visible scrollbar for Across column */
+#hints-across::-webkit-scrollbar,
+#hints-down::-webkit-scrollbar {
+    width: 8px;
+}
+
+#hints-across::-webkit-scrollbar-track,
+#hints-down::-webkit-scrollbar-track {
+    background: #E8E8E8;
+    border-radius: 4px;
+}
+
+#hints-across::-webkit-scrollbar-thumb,
+#hints-down::-webkit-scrollbar-thumb {
+    background: var(--accent-blue);
+    border-radius: 4px;
+    border: 2px solid #E8E8E8;
+}
+
+#hints-across::-webkit-scrollbar-thumb:hover,
+#hints-down::-webkit-scrollbar-thumb:hover {
+    background: #154360;
+}
+
+#hints-across,
+#hints-down {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-blue) #E8E8E8;
+}
+
+#hints-down {
+    border-right: none;
+}
+
+.hints-heading {
+    font-size: var(--font-size-lg);
+    font-weight: 800;
+    color: var(--accent-blue);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 2px solid var(--accent-blue-light);
+    margin-bottom: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.hints-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.hint-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    border-left: 4px solid transparent;
+    transition: background 0.2s, border-color 0.2s;
+    min-height: 48px;
+}
+
+.hint-item:hover {
+    background: #F5F5F5;
+}
+
+.hint-item.active {
+    background: var(--hint-active-bg);
+    border-left-color: var(--hint-active-border);
+}
+
+.hint-number {
+    font-size: var(--font-size-lg);
+    font-weight: 800;
+    color: var(--accent-blue);
+    min-width: 36px;
+    flex-shrink: 0;
+}
+
+.hint-text {
+    font-size: var(--font-size-hint);
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+/* Bottom Actions */
+#bottom-actions {
+    padding: var(--spacing-md);
+    flex-shrink: 0;
+}
+
+/* === SCROLL NAVIGATION BUTTONS === */
+#scroll-nav {
+    position: fixed;
+    right: 16px;
+    bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    z-index: 50;
+}
+
+.scroll-nav-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-blue);
+    background: white;
+    color: var(--accent-blue);
+    font-size: 24px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    transition: background 0.2s, transform 0.1s;
+    line-height: 1;
+}
+
+.scroll-nav-btn:hover {
+    background: var(--accent-blue-light);
+}
+
+.scroll-nav-btn:active {
+    transform: scale(0.9);
+}
+
+/* === BUTTONS === */
+.action-btn {
+    font-family: var(--font-devanagari);
+    font-size: var(--font-size-btn);
+    font-weight: 800;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    min-height: 60px;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+
+.primary-btn {
+    background: var(--accent-blue);
+    color: var(--btn-primary-text);
+    box-shadow: var(--shadow-sm);
+}
+
+.primary-btn:hover {
+    background: #154360;
+    box-shadow: var(--shadow-md);
+}
+
+.primary-btn:active {
+    transform: scale(0.98);
+}
+
+/* === MODALS === */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md);
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    position: relative;
+    background: var(--bg-primary);
+    border-radius: 20px;
+    padding: var(--spacing-xl);
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-title {
+    font-size: var(--font-size-xxl);
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    color: var(--accent-blue);
+}
+
+.difficulty-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.difficulty-btn {
+    font-family: var(--font-devanagari);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border: 3px solid #E0E0E0;
+    border-radius: var(--border-radius);
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.1s;
+    min-height: 72px;
+}
+
+.difficulty-btn:hover {
+    border-color: var(--accent-blue);
+    background: var(--accent-blue-light);
+}
+
+.difficulty-btn:active {
+    transform: scale(0.98);
+}
+
+.diff-label {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.diff-size {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.modal-close-btn {
+    font-family: var(--font-devanagari);
+    font-size: var(--font-size-btn);
+    font-weight: 700;
+    width: 100%;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    background: #F5F5F5;
+    color: var(--text-secondary);
+    border: 2px solid #E0E0E0;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    min-height: 56px;
+    transition: background 0.2s;
+}
+
+.modal-close-btn:hover {
+    background: #E0E0E0;
+}
+
+/* Archive Modal */
+.archive-content {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+#archive-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.archive-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    background: white;
+    border: 2px solid #E0E0E0;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    min-height: 60px;
+}
+
+.archive-item:hover {
+    border-color: var(--accent-blue);
+    background: var(--accent-blue-light);
+}
+
+.archive-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.archive-item-id {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.archive-item-meta {
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.archive-item-status {
+    font-size: var(--font-size-xl);
+}
+
+.archive-empty {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-muted);
+    font-size: var(--font-size-lg);
+}
+
+/* === CELEBRATION OVERLAY === */
+#celebration-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(26, 82, 118, 0.92);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.5s ease;
+}
+
+#celebration-overlay.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.celebration-content {
+    text-align: center;
+    padding: var(--spacing-xl);
+    animation: celebrationBounce 0.8s ease;
+}
+
+@keyframes celebrationBounce {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.celebration-icon {
+    font-size: 80px;
+    margin-bottom: var(--spacing-lg);
+    animation: celebrationPulse 2s ease-in-out infinite;
+}
+
+@keyframes celebrationPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+.celebration-text {
+    font-size: 48px;
+    font-weight: 800;
+    color: #FFD54F;
+    margin-bottom: var(--spacing-md);
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.celebration-subtext {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: white;
+    margin-bottom: var(--spacing-xl);
+    line-height: 1.6;
+}
+
+.celebration-btn {
+    max-width: 300px;
+    margin: 0 auto;
+    display: block;
+    background: #FFD54F;
+    color: var(--text-primary);
+}
+
+.celebration-btn:hover {
+    background: #FFC107;
+}
+
+/* === LOADING OVERLAY === */
+#loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 253, 247, 0.9);
+    backdrop-filter: blur(4px);
+}
+
+#loading-overlay.hidden {
+    display: none;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid var(--accent-blue-light);
+    border-top: 6px solid var(--accent-blue);
+    border-radius: 50%;
+    margin: 0 auto var(--spacing-lg);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-text {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--accent-blue);
+}
+
+/* === WELCOME STATE === */
+.welcome-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: var(--spacing-xl);
+    gap: var(--spacing-lg);
+}
+
+.welcome-state .welcome-emoji {
+    font-size: 72px;
+}
+
+.welcome-state .welcome-title {
+    font-size: var(--font-size-xxl);
+    font-weight: 800;
+    color: var(--accent-blue);
+}
+
+.welcome-state .welcome-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* === RESPONSIVE: Mobile Portrait Optimization === */
+@media (max-width: 480px) {
+    :root {
+        --cell-size: clamp(32px, 14vw, 50px);
+        --font-size-cell: clamp(16px, 5vw, 24px);
+        --font-size-cell-number: clamp(8px, 2vw, 11px);
+    }
+
+    #app-header {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        min-height: 48px;
+    }
+
+    #app-title {
+        font-size: 22px;
+    }
+
+    .header-btn {
+        font-size: 16px;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .help-btn {
+        font-size: 16px;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        min-height: 44px;
+    }
+
+    #help-tools {
+        padding: var(--spacing-sm);
+        gap: var(--spacing-xs);
+    }
+
+    .hint-item {
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .hint-text {
+        font-size: 18px;
+    }
+
+    /* Stack hints vertically on very narrow screens */
+    #hints-container {
+        grid-template-columns: 1fr;
+    }
+
+    #hints-across {
+        border-right: none;
+        border-bottom: 2px solid var(--accent-blue-light);
+    }
+
+    #scroll-nav {
+        right: 8px;
+        bottom: 80px;
+    }
+
+    .scroll-nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 481px) and (max-width: 1024px) {
+    :root {
+        --cell-size: clamp(40px, 6vw, 56px);
+    }
+}
+
+/* Prevent zoom on input focus (iOS) */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .cell-input {
+        font-size: max(16px, var(--font-size-cell));
+    }
+}
